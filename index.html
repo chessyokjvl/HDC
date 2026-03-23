@@ -81,21 +81,31 @@
         .toggle-group { display: flex; background: #eee; border-radius: 20px; overflow: hidden; }
         .toggle-btn { border: none; padding: 8px 25px; background: transparent; font-family: inherit; font-weight: 600; cursor: pointer; transition: 0.3s; color: #666; }
         .toggle-btn.active { background: var(--gold-accent); color: var(--primary-dark); }
+        
         .main-chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
         .table-responsive { overflow-x: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; background: #fff; white-space: nowrap; }
         
-        /* สไตล์สำหรับหัวตารางที่กด Sort ได้ */
         th { 
             background: var(--primary-blue); color: var(--gold-accent); padding: 12px 15px; 
-            text-align: right; font-weight: 500; position: sticky; top: 0; 
-            user-select: none;
+            text-align: right; font-weight: 500; position: sticky; top: 0; user-select: none;
         }
         th.sortable { cursor: pointer; transition: background 0.2s; }
         th.sortable:hover { background: var(--primary-light); }
         th:first-child { text-align: left; }
         
+        /* สไตล์ตารางสำหรับ View 3 (ภูมิลำเนา) */
+        .domicile-table th { border: 1px solid rgba(255,255,255,0.2); text-align: center; }
+        .domicile-table td { text-align: right; border: 1px solid #eee; padding: 12px 15px; color: #333; }
+        .domicile-table td:first-child { text-align: center; font-weight: 600; color: var(--primary-blue); }
+        .domicile-table tfoot td { font-weight: bold; background-color: #f8f9fa; border-top: 2px solid var(--primary-blue); }
+        
+        /* สี Heatmap ในตาราง (อิงตามไฟล์ต้นฉบับ) */
+        .bg-red-light { background-color: #f5b7b1 !important; } /* แดงอ่อน - มากสุด */
+        .bg-orange-light { background-color: #fcd2a8 !important; } /* ส้มอ่อน - ปานกลาง */
+        .bg-green-light { background-color: #a3e4d7 !important; } /* เขียวอ่อน - น้อยสุด */
+
         .sort-icon { display: inline-block; width: 16px; font-size: 0.8em; margin-left: 5px; color: #fff; }
 
         td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #eee; color: #444; }
@@ -106,16 +116,7 @@
         .pop-col { font-weight: 500; color: #34495e; background-color: #f8f9fa; }
         .prev-col { font-weight: bold; color: #c0392b; background-color: #fdf2f0; }
 
-        /* Credit Footer */
-        .credit-footer {
-            text-align: right;
-            padding: 15px 25px;
-            font-size: 0.95rem;
-            color: #555;
-            background-color: #eee;
-            border-top: 1px solid #ddd;
-            font-weight: 500;
-        }
+        .credit-footer { text-align: right; padding: 15px 25px; font-size: 0.95rem; color: #555; background-color: #eee; border-top: 1px solid #ddd; font-weight: 500; }
 
         @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: flex-start; }
@@ -132,12 +133,13 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard ผู้รับบริการจิตเวช เขตสุขภาพที่ 8</h1>
-        <p>ระบบสารสนเทศเพื่อการบริหารจัดการข้อมูลยุทธศาสตร์ (รวมวิเคราะห์อัตราความชุก)</p>
+        <p>ระบบสารสนเทศเพื่อการบริหารจัดการข้อมูลยุทธศาสตร์</p>
     </div>
 
     <div class="main-nav">
         <button class="nav-btn active" id="navView1" onclick="switchView('view1')">📊 ภาพรวม 5 อันดับกลุ่มโรค (7 จังหวัด)</button>
-        <button class="nav-btn" id="navView2" onclick="switchView('view2')">🏥 เจาะลึกสถิติและความชุกรายอำเภอ (4 จังหวัดโซนเลย)</button>
+        <button class="nav-btn" id="navView2" onclick="switchView('view2')">🏥 เจาะลึกสถิติและความชุกรายอำเภอ</button>
+        <button class="nav-btn" id="navView3" onclick="switchView('view3')">📍 ภูมิลำเนาผู้ป่วยใน รพ.จิตเวชเลย</button>
     </div>
 
     <div id="view1" class="view-section active">
@@ -152,11 +154,7 @@
                 <button class="toggle-btn" id="btnIPD" onclick="setType('IPD')">IPD (ผู้ป่วยใน)</button>
             </div>
         </div>
-
-        <div class="main-chart-container">
-            <canvas id="mainChart"></canvas>
-        </div>
-        
+        <div class="main-chart-container"><canvas id="mainChart"></canvas></div>
         <div class="table-responsive">
             <table id="dataTable">
                 <thead>
@@ -178,8 +176,68 @@
         </div>
     </div>
 
+    <div id="view3" class="view-section">
+        <h2 style="text-align: center; color: var(--primary-dark); margin-bottom: 20px;">ร้อยละภูมิลำเนาของผู้ป่วยใน รพ.จิตเวชเลย ปีงบประมาณ 2565-2567</h2>
+        
+        <div class="main-chart-container">
+            <canvas id="domicileChart"></canvas>
+        </div>
+
+        <div class="table-responsive">
+            <table class="domicile-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="vertical-align: middle;">จังหวัด</th>
+                        <th colspan="2">2565</th>
+                        <th colspan="2">2566</th>
+                        <th colspan="2">2567</th>
+                    </tr>
+                    <tr>
+                        <th>ราย</th><th>%</th>
+                        <th>ราย</th><th>%</th>
+                        <th>ราย</th><th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>เลย</td>
+                        <td>850</td><td class="bg-red-light">49.28</td>
+                        <td>1,182</td><td class="bg-red-light">53.73</td>
+                        <td>1,335</td><td class="bg-red-light">55.35</td>
+                    </tr>
+                    <tr>
+                        <td>หนองบัวลำภู</td>
+                        <td>136</td><td class="bg-green-light">7.88</td>
+                        <td>157</td><td class="bg-green-light">7.14</td>
+                        <td>162</td><td class="bg-green-light">6.72</td>
+                    </tr>
+                    <tr>
+                        <td>หนองคาย</td>
+                        <td>134</td><td class="bg-green-light">7.77</td>
+                        <td>103</td><td class="bg-green-light">4.68</td>
+                        <td>280</td><td class="bg-green-light">11.61</td>
+                    </tr>
+                    <tr>
+                        <td>อุดรธานี</td>
+                        <td>605</td><td class="bg-orange-light">35.07</td>
+                        <td>758</td><td class="bg-orange-light">34.45</td>
+                        <td>635</td><td class="bg-orange-light">26.33</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td style="text-align: center; color: var(--primary-dark);">รวม</td>
+                        <td style="text-align: center;">1,725</td><td style="text-align: center;">100</td>
+                        <td style="text-align: center;">2,200</td><td style="text-align: center;">100</td>
+                        <td style="text-align: center;">2,412</td><td style="text-align: center;">100</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
     <div class="credit-footer">
-        📝 สรุปข้อมูลโดยโรงพยาบาลจิตเวชเลยราชนครินทร์ 23 มีนาคม 2569
+        📝 สรุปข้อมูลโดยกลุ่มงานพัฒนาคุณภาพและมาตรฐาน รพ.จิตเวชเลยราชนครินทร์ (23 มีนาคม 2569)
     </div>
 </div>
 
@@ -189,59 +247,25 @@
     function switchView(viewId) {
         document.querySelectorAll('.view-section, .nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
-        document.getElementById(viewId === 'view1' ? 'navView1' : 'navView2').classList.add('active');
+        document.getElementById('nav' + viewId.charAt(0).toUpperCase() + viewId.slice(1)).classList.add('active');
+        
+        // Render Chart for View 3 only when opened (to fix width issues)
+        if(viewId === 'view3' && !domicileChartInstance) {
+            renderDomicileChart();
+        }
     }
 
+    // ==========================================
+    // View 1 & 2 Logic (คงเดิมทั้งหมด)
+    // ==========================================
     const diseaseData = {
-        "เลย": [
-            { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [6918, 8100, 7825], borderColor: '#3498db' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [7554, 7552, 7518], borderColor: '#2ecc71' },
-            { label: 'F30-F39 อารมณ์', data: [4918, 5079, 5530], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [2961, 2736, 2796], borderColor: '#9b59b6' }
-        ],
-        "หนองบัวลำภู": [
-            { label: 'F20-F29 จิตเภท', data: [3144, 3290, 3704], borderColor: '#3498db' },
-            { label: 'F10-F19 สารเสพติด', data: [2268, 2511, 3505], borderColor: '#e74c3c' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [2473, 3169, 3482], borderColor: '#2ecc71' },
-            { label: 'F30-F39 อารมณ์', data: [2136, 1940, 1961], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [954, 944, 1035], borderColor: '#9b59b6' }
-        ],
-        "หนองคาย": [
-            { label: 'F10-F19 สารเสพติด', data: [3208, 4352, 5015], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [3162, 3762, 4612], borderColor: '#3498db' },
-            { label: 'F30-F39 อารมณ์', data: [2103, 2370, 2863], borderColor: '#f1c40f' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [2549, 2577, 2763], borderColor: '#2ecc71' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [2687, 2454, 2360], borderColor: '#9b59b6' }
-        ],
-        "อุดรธานี": [
-            { label: 'F10-F19 สารเสพติด', data: [14914, 13014, 16196], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [9371, 10594, 11250], borderColor: '#3498db' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [9181, 10385, 9580], borderColor: '#2ecc71' },
-            { label: 'F30-F39 อารมณ์', data: [5630, 5752, 5461], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [5447, 5289, 4979], borderColor: '#9b59b6' }
-        ],
-        "บึงกาฬ": [
-            { label: 'F10-F19 สารเสพติด', data: [4523, 4236, 5652], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [2964, 3267, 3743], borderColor: '#3498db' },
-            { label: 'F30-F39 อารมณ์', data: [1428, 1439, 1605], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [1212, 1454, 1566], borderColor: '#9b59b6' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [1235, 1293, 1404], borderColor: '#2ecc71' }
-        ],
-        "สกลนคร": [
-            { label: 'F10-F19 สารเสพติด', data: [26060, 26181, 31436], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [8977, 9478, 12338], borderColor: '#3498db' },
-            { label: 'F30-F39 อารมณ์', data: [5542, 5657, 8072], borderColor: '#f1c40f' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [5631, 6186, 7489], borderColor: '#2ecc71' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [5027, 4949, 5298], borderColor: '#9b59b6' }
-        ],
-        "นครพนม": [
-            { label: 'F20-F29 จิตเภท', data: [7502, 7968, 7654], borderColor: '#3498db' },
-            { label: 'F10-F19 สารเสพติด', data: [4564, 5648, 7512], borderColor: '#e74c3c' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [5754, 6098, 5593], borderColor: '#2ecc71' },
-            { label: 'F30-F39 อารมณ์', data: [3362, 3502, 3484], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [2021, 2303, 2393], borderColor: '#9b59b6' }
-        ]
+        "เลย": [ { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' }, { label: 'F20-F29 จิตเภท', data: [6918, 8100, 7825], borderColor: '#3498db' }, { label: 'F40-F48 เครียด/ประสาท', data: [7554, 7552, 7518], borderColor: '#2ecc71' }, { label: 'F30-F39 อารมณ์', data: [4918, 5079, 5530], borderColor: '#f1c40f' }, { label: 'F50-F59 พฤติกรรมฯ', data: [2961, 2736, 2796], borderColor: '#9b59b6' } ],
+        "หนองบัวลำภู": [ { label: 'F20-F29 จิตเภท', data: [3144, 3290, 3704], borderColor: '#3498db' }, { label: 'F10-F19 สารเสพติด', data: [2268, 2511, 3505], borderColor: '#e74c3c' }, { label: 'F40-F48 เครียด/ประสาท', data: [2473, 3169, 3482], borderColor: '#2ecc71' }, { label: 'F30-F39 อารมณ์', data: [2136, 1940, 1961], borderColor: '#f1c40f' }, { label: 'F50-F59 พฤติกรรมฯ', data: [954, 944, 1035], borderColor: '#9b59b6' } ],
+        "หนองคาย": [ { label: 'F10-F19 สารเสพติด', data: [3208, 4352, 5015], borderColor: '#e74c3c' }, { label: 'F20-F29 จิตเภท', data: [3162, 3762, 4612], borderColor: '#3498db' }, { label: 'F30-F39 อารมณ์', data: [2103, 2370, 2863], borderColor: '#f1c40f' }, { label: 'F40-F48 เครียด/ประสาท', data: [2549, 2577, 2763], borderColor: '#2ecc71' }, { label: 'F50-F59 พฤติกรรมฯ', data: [2687, 2454, 2360], borderColor: '#9b59b6' } ],
+        "อุดรธานี": [ { label: 'F10-F19 สารเสพติด', data: [14914, 13014, 16196], borderColor: '#e74c3c' }, { label: 'F20-F29 จิตเภท', data: [9371, 10594, 11250], borderColor: '#3498db' }, { label: 'F40-F48 เครียด/ประสาท', data: [9181, 10385, 9580], borderColor: '#2ecc71' }, { label: 'F30-F39 อารมณ์', data: [5630, 5752, 5461], borderColor: '#f1c40f' }, { label: 'F50-F59 พฤติกรรมฯ', data: [5447, 5289, 4979], borderColor: '#9b59b6' } ],
+        "บึงกาฬ": [ { label: 'F10-F19 สารเสพติด', data: [4523, 4236, 5652], borderColor: '#e74c3c' }, { label: 'F20-F29 จิตเภท', data: [2964, 3267, 3743], borderColor: '#3498db' }, { label: 'F30-F39 อารมณ์', data: [1428, 1439, 1605], borderColor: '#f1c40f' }, { label: 'F50-F59 พฤติกรรมฯ', data: [1212, 1454, 1566], borderColor: '#9b59b6' }, { label: 'F40-F48 เครียด/ประสาท', data: [1235, 1293, 1404], borderColor: '#2ecc71' } ],
+        "สกลนคร": [ { label: 'F10-F19 สารเสพติด', data: [26060, 26181, 31436], borderColor: '#e74c3c' }, { label: 'F20-F29 จิตเภท', data: [8977, 9478, 12338], borderColor: '#3498db' }, { label: 'F30-F39 อารมณ์', data: [5542, 5657, 8072], borderColor: '#f1c40f' }, { label: 'F40-F48 เครียด/ประสาท', data: [5631, 6186, 7489], borderColor: '#2ecc71' }, { label: 'F50-F59 พฤติกรรมฯ', data: [5027, 4949, 5298], borderColor: '#9b59b6' } ],
+        "นครพนม": [ { label: 'F20-F29 จิตเภท', data: [7502, 7968, 7654], borderColor: '#3498db' }, { label: 'F10-F19 สารเสพติด', data: [4564, 5648, 7512], borderColor: '#e74c3c' }, { label: 'F40-F48 เครียด/ประสาท', data: [5754, 6098, 5593], borderColor: '#2ecc71' }, { label: 'F30-F39 อารมณ์', data: [3362, 3502, 3484], borderColor: '#f1c40f' }, { label: 'F50-F59 พฤติกรรมฯ', data: [2021, 2303, 2393], borderColor: '#9b59b6' } ]
     };
 
     const grid = document.getElementById('chartGrid');
@@ -256,62 +280,8 @@
         });
     });
 
-    const districtPopulation = {
-        "เมืองเลย": 123560, "นาด้วง": 26432, "เชียงคาน": 60828, "ปากชม": 42276, "ด่านซ้าย": 51693, "นาแห้ว": 11689, "ภูเรือ": 22587, "ท่าลี่": 27932, "วังสะพุง": 111116, "ภูกระดึง": 34526, "ภูหลวง": 25046, "ผาขาว": 39788, "เอราวัณ": 36622, "หนองหิน": 22631,
-        "เมืองอุดรธานี": 402800, "กุดจับ": 65100, "หนองวัวซอ": 63200, "กุมภวาปี": 124500, "โนนสะอาด": 48300, "หนองหาน": 116800, "ทุ่งฝน": 32100, "ไชยวาน": 38400, "ศรีธาตุ": 48200, "วังสามหมอ": 61300, "บ้านดุง": 124600, "บ้านผือ": 106100, "น้ำโสม": 59200, "เพ็ญ": 112300, "สร้างคอม": 28400, "หนองแสง": 26500, "นายูง": 28100, "พิบูลย์รักษ์": 24200, "กู่แก้ว": 22300, "ประจักษ์ศิลปาคม": 24800,
-        "เมืองหนองบัวลำภู": 132400, "นากลาง": 90100, "โนนสัง": 64200, "ศรีบุญเรือง": 108300, "สุวรรณคูหา": 67400, "นาวัง": 36800,
-        "เมืองหนองคาย": 145200, "ท่าบ่อ": 82100, "โพนพิสัย": 95300, "ศรีเชียงใหม่": 30200, "สังคม": 23400, "สระใคร": 25100, "เฝ้าไร่": 50200, "รัตนวาปี": 36100, "โพธิ์ตาก": 15200
-    };
-
-    const rawDataStr = `หนองบัวลำภู|เมืองหนองบัวลำภู|56|50|54|59|46|265|53|13|7|11|5|7|43|8.6
-หนองบัวลำภู|นากลาง|170|156|148|158|145|777|155.4|45|25|25|47|48|190|38
-หนองบัวลำภู|โนนสัง|42|23|39|48|35|187|37.4|25|10|22|21|23|101|20.2
-หนองบัวลำภู|ศรีบุญเรือง|89|99|78|90|95|451|90.2|42|28|17|25|50|162|32.4
-หนองบัวลำภู|สุวรรณคูหา|88|96|91|98|71|444|88.8|52|33|36|26|32|179|35.8
-หนองบัวลำภู|นาวัง|138|147|156|143|121|705|141|24|23|24|18|18|107|21.4
-อุดรธานี|เมืองอุดรธานี|175|142|193|187|158|855|171|118|64|119|93|102|496|99.2
-อุดรธานี|กุดจับ|48|73|67|43|28|259|51.8|33|57|46|17|14|167|33.4
-อุดรธานี|หนองวัวซอ|37|41|44|44|34|200|40|18|29|24|23|25|119|23.8
-อุดรธานี|กุมภวาปี|24|42|37|43|33|179|35.8|19|32|23|22|24|120|24
-อุดรธานี|โนนสะอาด|33|28|29|26|19|135|27|27|23|19|17|15|101|20.2
-อุดรธานี|หนองหาน|71|61|67|72|18|289|57.8|46|36|46|35|14|177|35.4
-อุดรธานี|ทุ่งฝน|12|12|15|14|7|60|12|5|9|8|4|4|30|6
-อุดรธานี|ไชยวาน|17|17|31|31|11|107|21.4|15|11|25|25|7|83|16.6
-อุดรธานี|ศรีธาตุ|34|28|37|35|6|140|28|25|16|27|20|3|91|18.2
-อุดรธานี|วังสามหมอ|76|67|61|73|37|314|62.8|59|54|39|50|29|231|46.2
-อุดรธานี|บ้านดุง|61|68|76|66|31|302|60.4|48|49|57|29|14|197|39.4
-อุดรธานี|บ้านผือ|62|81|99|104|40|386|77.2|21|42|60|52|18|193|38.6
-อุดรธานี|น้ำโสม|86|96|101|96|43|422|84.4|44|43|51|41|15|194|38.8
-อุดรธานี|เพ็ญ|47|33|46|46|27|199|39.8|34|14|28|26|16|118|23.6
-อุดรธานี|สร้างคอม|17|22|19|10|4|72|14.4|10|17|11|3|4|45|9
-อุดรธานี|หนองแสง|19|18|21|14|10|82|16.4|17|12|14|10|6|59|11.8
-อุดรธานี|นายูง|84|68|56|52|26|286|57.2|44|25|26|24|6|125|25
-อุดรธานี|พิบูลย์รักษ์|8|12|9|11|3|43|8.6|7|9|7|8|2|33|6.6
-อุดรธานี|กู่แก้ว|25|21|24|25|11|106|21.2|16|15|15|15|8|69|13.8
-อุดรธานี|ประจักษ์ศิลปาคม|3|4|6|9|5|27|5.4|2|3|4|6|1|16|3.2
-เลย|เมืองเลย|3627|4626|3238|3347|3347|18185|3637|196|154|267|278|348|1243|248.6
-เลย|นาด้วง|394|392|368|391|359|1904|380.8|55|48|45|31|30|209|41.8
-เลย|เชียงคาน|788|873|814|913|931|4319|863.8|72|64|92|140|135|503|100.6
-เลย|ปากชม|411|434|440|417|418|2120|424|35|35|38|27|49|184|36.8
-เลย|ด่านซ้าย|202|219|194|195|182|992|198.4|34|23|32|33|30|152|30.4
-เลย|นาแห้ว|79|74|63|57|52|325|65|6|7|11|7|6|37|7.4
-เลย|ภูเรือ|252|263|262|264|275|1316|263.2|48|34|45|44|35|206|41.2
-เลย|ท่าลี่|340|402|389|401|392|1924|384.8|45|39|49|57|78|268|53.6
-เลย|วังสะพุง|1777|2014|1934|2038|1942|9705|1941|160|148|184|205|160|857|171.4
-เลย|ภูกระดึง|273|304|302|288|288|1455|291|26|20|28|39|48|161|32.2
-เลย|ภูหลวง|233|218|213|249|256|1169|233.8|73|29|38|76|84|300|60
-เลย|ผาขาว|398|394|417|494|453|2156|431.2|43|38|39|65|56|241|48.2
-เลย|เอราวัณ|390|439|413|479|424|2145|429|50|52|54|82|72|310|62
-เลย|หนองหิน|268|293|277|303|294|1435|287|36|32|30|30|38|166|33.2
-หนองคาย|เมืองหนองคาย|78|58|59|101|58|354|70.8|54|27|30|74|45|230|46
-หนองคาย|ท่าบ่อ|55|33|27|51|39|205|41|29|14|12|30|29|114|22.8
-หนองคาย|โพนพิสัย|24|24|16|41|28|133|26.6|17|10|10|29|21|87|17.4
-หนองคาย|ศรีเชียงใหม่|17|14|11|19|9|70|14|7|6|3|11|3|30|6
-หนองคาย|สังคม|34|40|24|35|27|160|32|15|12|5|13|12|57|11.4
-หนองคาย|สระใคร|25|28|14|21|22|110|22|14|13|7|11|16|61|12.2
-หนองคาย|เฝ้าไร่|51|38|25|46|23|183|36.6|32|15|16|34|22|119|23.8
-หนองคาย|รัตนวาปี|26|28|10|24|24|112|22.4|20|22|9|16|21|88|17.6
-หนองคาย|โพธิ์ตาก|10|13|11|10|10|54|10.8|2|5|3|5|5|20|4`;
+    const districtPopulation = { "เมืองเลย": 123560, "นาด้วง": 26432, "เชียงคาน": 60828, "ปากชม": 42276, "ด่านซ้าย": 51693, "นาแห้ว": 11689, "ภูเรือ": 22587, "ท่าลี่": 27932, "วังสะพุง": 111116, "ภูกระดึง": 34526, "ภูหลวง": 25046, "ผาขาว": 39788, "เอราวัณ": 36622, "หนองหิน": 22631, "เมืองอุดรธานี": 402800, "กุดจับ": 65100, "หนองวัวซอ": 63200, "กุมภวาปี": 124500, "โนนสะอาด": 48300, "หนองหาน": 116800, "ทุ่งฝน": 32100, "ไชยวาน": 38400, "ศรีธาตุ": 48200, "วังสามหมอ": 61300, "บ้านดุง": 124600, "บ้านผือ": 106100, "น้ำโสม": 59200, "เพ็ญ": 112300, "สร้างคอม": 28400, "หนองแสง": 26500, "นายูง": 28100, "พิบูลย์รักษ์": 24200, "กู่แก้ว": 22300, "ประจักษ์ศิลปาคม": 24800, "เมืองหนองบัวลำภู": 132400, "นากลาง": 90100, "โนนสัง": 64200, "ศรีบุญเรือง": 108300, "สุวรรณคูหา": 67400, "นาวัง": 36800, "เมืองหนองคาย": 145200, "ท่าบ่อ": 82100, "โพนพิสัย": 95300, "ศรีเชียงใหม่": 30200, "สังคม": 23400, "สระใคร": 25100, "เฝ้าไร่": 50200, "รัตนวาปี": 36100, "โพธิ์ตาก": 15200 };
+    const rawDataStr = `หนองบัวลำภู|เมืองหนองบัวลำภู|56|50|54|59|46|265|53|13|7|11|5|7|43|8.6\nหนองบัวลำภู|นากลาง|170|156|148|158|145|777|155.4|45|25|25|47|48|190|38\nหนองบัวลำภู|โนนสัง|42|23|39|48|35|187|37.4|25|10|22|21|23|101|20.2\nหนองบัวลำภู|ศรีบุญเรือง|89|99|78|90|95|451|90.2|42|28|17|25|50|162|32.4\nหนองบัวลำภู|สุวรรณคูหา|88|96|91|98|71|444|88.8|52|33|36|26|32|179|35.8\nหนองบัวลำภู|นาวัง|138|147|156|143|121|705|141|24|23|24|18|18|107|21.4\nอุดรธานี|เมืองอุดรธานี|175|142|193|187|158|855|171|118|64|119|93|102|496|99.2\nอุดรธานี|กุดจับ|48|73|67|43|28|259|51.8|33|57|46|17|14|167|33.4\nอุดรธานี|หนองวัวซอ|37|41|44|44|34|200|40|18|29|24|23|25|119|23.8\nอุดรธานี|กุมภวาปี|24|42|37|43|33|179|35.8|19|32|23|22|24|120|24\nอุดรธานี|โนนสะอาด|33|28|29|26|19|135|27|27|23|19|17|15|101|20.2\nอุดรธานี|หนองหาน|71|61|67|72|18|289|57.8|46|36|46|35|14|177|35.4\nอุดรธานี|ทุ่งฝน|12|12|15|14|7|60|12|5|9|8|4|4|30|6\nอุดรธานี|ไชยวาน|17|17|31|31|11|107|21.4|15|11|25|25|7|83|16.6\nอุดรธานี|ศรีธาตุ|34|28|37|35|6|140|28|25|16|27|20|3|91|18.2\nอุดรธานี|วังสามหมอ|76|67|61|73|37|314|62.8|59|54|39|50|29|231|46.2\nอุดรธานี|บ้านดุง|61|68|76|66|31|302|60.4|48|49|57|29|14|197|39.4\nอุดรธานี|บ้านผือ|62|81|99|104|40|386|77.2|21|42|60|52|18|193|38.6\nอุดรธานี|น้ำโสม|86|96|101|96|43|422|84.4|44|43|51|41|15|194|38.8\nอุดรธานี|เพ็ญ|47|33|46|46|27|199|39.8|34|14|28|26|16|118|23.6\nอุดรธานี|สร้างคอม|17|22|19|10|4|72|14.4|10|17|11|3|4|45|9\nอุดรธานี|หนองแสง|19|18|21|14|10|82|16.4|17|12|14|10|6|59|11.8\nอุดรธานี|นายูง|84|68|56|52|26|286|57.2|44|25|26|24|6|125|25\nอุดรธานี|พิบูลย์รักษ์|8|12|9|11|3|43|8.6|7|9|7|8|2|33|6.6\nอุดรธานี|กู่แก้ว|25|21|24|25|11|106|21.2|16|15|15|15|8|69|13.8\nอุดรธานี|ประจักษ์ศิลปาคม|3|4|6|9|5|27|5.4|2|3|4|6|1|16|3.2\nเลย|เมืองเลย|3627|4626|3238|3347|3347|18185|3637|196|154|267|278|348|1243|248.6\nเลย|นาด้วง|394|392|368|391|359|1904|380.8|55|48|45|31|30|209|41.8\nเลย|เชียงคาน|788|873|814|913|931|4319|863.8|72|64|92|140|135|503|100.6\nเลย|ปากชม|411|434|440|417|418|2120|424|35|35|38|27|49|184|36.8\nเลย|ด่านซ้าย|202|219|194|195|182|992|198.4|34|23|32|33|30|152|30.4\nเลย|นาแห้ว|79|74|63|57|52|325|65|6|7|11|7|6|37|7.4\nเลย|ภูเรือ|252|263|262|264|275|1316|263.2|48|34|45|44|35|206|41.2\nเลย|ท่าลี่|340|402|389|401|392|1924|384.8|45|39|49|57|78|268|53.6\nเลย|วังสะพุง|1777|2014|1934|2038|1942|9705|1941|160|148|184|205|160|857|171.4\nเลย|ภูกระดึง|273|304|302|288|288|1455|291|26|20|28|39|48|161|32.2\nเลย|ภูหลวง|233|218|213|249|256|1169|233.8|73|29|38|76|84|300|60\nเลย|ผาขาว|398|394|417|494|453|2156|431.2|43|38|39|65|56|241|48.2\nเลย|เอราวัณ|390|439|413|479|424|2145|429|50|52|54|82|72|310|62\nเลย|หนองหิน|268|293|277|303|294|1435|287|36|32|30|30|38|166|33.2\nหนองคาย|เมืองหนองคาย|78|58|59|101|58|354|70.8|54|27|30|74|45|230|46\nหนองคาย|ท่าบ่อ|55|33|27|51|39|205|41|29|14|12|30|29|114|22.8\nหนองคาย|โพนพิสัย|24|24|16|41|28|133|26.6|17|10|10|29|21|87|17.4\nหนองคาย|ศรีเชียงใหม่|17|14|11|19|9|70|14|7|6|3|11|3|30|6\nหนองคาย|สังคม|34|40|24|35|27|160|32|15|12|5|13|12|57|11.4\nหนองคาย|สระใคร|25|28|14|21|22|110|22|14|13|7|11|16|61|12.2\nหนองคาย|เฝ้าไร่|51|38|25|46|23|183|36.6|32|15|16|34|22|119|23.8\nหนองคาย|รัตนวาปี|26|28|10|24|24|112|22.4|20|22|9|16|21|88|17.6\nหนองคาย|โพธิ์ตาก|10|13|11|10|10|54|10.8|2|5|3|5|5|20|4`;
 
     const parsedData = rawDataStr.split('\n').map(row => {
         const cols = row.split('|');
@@ -328,10 +298,9 @@
     let currentProvince = provinces[0];
     let currentType = 'OPD';
     let mainChartInstance = null;
-    let currentSortCol = 'prev'; // Default sort ค่าความชุก
-    let sortAsc = false; // Default เรียงจากมากไปน้อย
+    let currentSortCol = 'prev';
+    let sortAsc = false;
 
-    // สร้างปุ่มเลือกจังหวัด
     const tabContainer = document.getElementById('provinceTabs');
     provinces.forEach(prov => {
         const btn = document.createElement('button');
@@ -354,13 +323,8 @@
     }
 
     function handleSort(col) {
-        if (currentSortCol === col) {
-            sortAsc = !sortAsc; // สลับการเรียงลำดับ
-        } else {
-            currentSortCol = col;
-            sortAsc = false; // ค่าเริ่มต้นเวลาคลิกคอลัมน์ใหม่ ให้เรียงจากมากไปน้อยก่อน (เหมาะกับสถิติโรค)
-            if(col === 'district') sortAsc = true; // ยกเว้นชื่ออำเภอ ให้เรียง ก-ฮ ก่อน
-        }
+        if (currentSortCol === col) { sortAsc = !sortAsc; } 
+        else { currentSortCol = col; sortAsc = col === 'district' ? true : false; }
         updateDistrictView();
     }
 
@@ -368,16 +332,12 @@
         document.querySelectorAll('.sort-icon').forEach(icon => icon.innerText = '');
         if (currentSortCol) {
             const iconEl = document.getElementById(`icon-${currentSortCol}`);
-            if (iconEl) {
-                iconEl.innerText = sortAsc ? '🔼' : '🔽';
-            }
+            if (iconEl) iconEl.innerText = sortAsc ? '🔼' : '🔽';
         }
     }
 
     function updateDistrictView() {
         const provData = parsedData.filter(d => d.province === currentProvince);
-        
-        // เตรียมข้อมูลสำหรับการแสดงผลและการจัดเรียง
         let renderData = provData.map(d => {
             const dataArr = currentType === 'OPD' ? d.opd : d.ipd;
             const total = currentType === 'OPD' ? d.opdTot : d.ipdTot;
@@ -387,69 +347,93 @@
             return { district: d.district, dataArr, total, avg, pop, prev };
         });
 
-        // ทำการ Sort ข้อมูล
         if (currentSortCol) {
             renderData.sort((a, b) => {
                 let valA, valB;
                 if (currentSortCol === 'district') { valA = a.district; valB = b.district; }
-                else if (currentSortCol.startsWith('year')) {
-                    const idx = parseInt(currentSortCol.replace('year', ''));
-                    valA = a.dataArr[idx]; valB = b.dataArr[idx];
-                }
+                else if (currentSortCol.startsWith('year')) { const idx = parseInt(currentSortCol.replace('year', '')); valA = a.dataArr[idx]; valB = b.dataArr[idx]; }
                 else { valA = a[currentSortCol]; valB = b[currentSortCol]; }
-
-                if (typeof valA === 'string') {
-                    return sortAsc ? valA.localeCompare(valB, 'th') : valB.localeCompare(valA, 'th');
-                }
+                if (typeof valA === 'string') return sortAsc ? valA.localeCompare(valB, 'th') : valB.localeCompare(valA, 'th');
                 return sortAsc ? valA - valB : valB - valA;
             });
         }
-
         updateSortIcons();
 
-        // อัปเดตกราฟ (ให้กราฟเรียงลำดับตามตารางด้วย)
         const ctx = document.getElementById('mainChart').getContext('2d');
         const chartColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#34495e', '#d35400', '#c0392b', '#7f8c8d', '#8e44ad', '#27ae60'];
         const datasets = renderData.map((d, i) => ({
-            label: d.district,
-            data: d.dataArr,
-            borderColor: chartColors[i % chartColors.length],
-            borderWidth: 2, tension: 0.3
+            label: d.district, data: d.dataArr, borderColor: chartColors[i % chartColors.length], borderWidth: 2, tension: 0.3
         }));
 
         if (mainChartInstance) mainChartInstance.destroy();
         mainChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: { labels: ['ปี 2564', 'ปี 2565', 'ปี 2566', 'ปี 2567', 'ปี 2568'], datasets: datasets },
+            type: 'line', data: { labels: ['ปี 2564', 'ปี 2565', 'ปี 2566', 'ปี 2567', 'ปี 2568'], datasets: datasets },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } }, title: { display: true, text: `แนวโน้มผู้ป่วย ${currentType} จังหวัด${currentProvince} รายอำเภอ`, font: { size: 16 } } } }
         });
 
-        // อัปเดตตาราง
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         renderData.forEach(d => {
             const popStr = d.pop > 0 ? d.pop.toLocaleString() : 'ไม่พบข้อมูล';
             const prevStr = d.pop > 0 ? d.prev.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) : 'N/A';
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${d.district}</td>
-                <td>${d.dataArr[0].toLocaleString()}</td>
-                <td>${d.dataArr[1].toLocaleString()}</td>
-                <td>${d.dataArr[2].toLocaleString()}</td>
-                <td>${d.dataArr[3].toLocaleString()}</td>
-                <td>${d.dataArr[4].toLocaleString()}</td>
-                <td class="total-col">${d.total.toLocaleString()}</td>
-                <td class="avg-col">${d.avg.toLocaleString()}</td>
-                <td class="pop-col">${popStr}</td>
-                <td class="prev-col">${prevStr}</td>
+                <td>${d.district}</td><td>${d.dataArr[0].toLocaleString()}</td><td>${d.dataArr[1].toLocaleString()}</td>
+                <td>${d.dataArr[2].toLocaleString()}</td><td>${d.dataArr[3].toLocaleString()}</td><td>${d.dataArr[4].toLocaleString()}</td>
+                <td class="total-col">${d.total.toLocaleString()}</td><td class="avg-col">${d.avg.toLocaleString()}</td>
+                <td class="pop-col">${popStr}</td><td class="prev-col">${prevStr}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // โหลดครั้งแรก
     updateDistrictView();
+
+    // ==========================================
+    // View 3 Logic (กราฟแท่งภูมิลำเนา)
+    // ==========================================
+    let domicileChartInstance = null;
+
+    function renderDomicileChart() {
+        const ctx = document.getElementById('domicileChart').getContext('2d');
+        
+        // ข้อมูลร้อยละอิงจากรูปภาพ
+        const data2565 = [49.28, 7.88, 7.77, 35.07];
+        const data2566 = [53.73, 7.14, 4.68, 34.45];
+        const data2567 = [55.35, 6.72, 11.61, 26.33];
+        
+        domicileChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['เลย', 'หนองบัวลำภู', 'หนองคาย', 'อุดรธานี'],
+                datasets: [
+                    { label: '2565', data: data2565, backgroundColor: '#4285F4', borderRadius: 4 },
+                    { label: '2566', data: data2566, backgroundColor: '#EA4335', borderRadius: 4 },
+                    { label: '2567', data: data2567, backgroundColor: '#FBBC05', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Sarabun', size: 14 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        max: 60,
+                        ticks: { font: { family: 'Sarabun' }, callback: function(value) { return value + '%'; } }
+                    },
+                    x: { ticks: { font: { family: 'Sarabun', size: 14 } } }
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>
