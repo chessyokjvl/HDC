@@ -34,6 +34,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             overflow: hidden;
+            position: relative;
         }
 
         .header {
@@ -82,17 +83,39 @@
         .toggle-btn.active { background: var(--gold-accent); color: var(--primary-dark); }
         .main-chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        .table-responsive { overflow-x: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .table-responsive { overflow-x: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; background: #fff; white-space: nowrap; }
-        th { background: var(--primary-blue); color: var(--gold-accent); padding: 12px 15px; text-align: right; font-weight: 500; position: sticky; top: 0; }
+        
+        /* สไตล์สำหรับหัวตารางที่กด Sort ได้ */
+        th { 
+            background: var(--primary-blue); color: var(--gold-accent); padding: 12px 15px; 
+            text-align: right; font-weight: 500; position: sticky; top: 0; 
+            user-select: none;
+        }
+        th.sortable { cursor: pointer; transition: background 0.2s; }
+        th.sortable:hover { background: var(--primary-light); }
         th:first-child { text-align: left; }
+        
+        .sort-icon { display: inline-block; width: 16px; font-size: 0.8em; margin-left: 5px; color: #fff; }
+
         td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #eee; color: #444; }
         td:first-child { text-align: left; font-weight: 600; color: var(--primary-blue); }
         tbody tr:hover { background-color: #fcf8e3; }
         .total-col { font-weight: bold; color: #b21f1f; }
         .avg-col { font-weight: bold; color: #2ecc71; }
         .pop-col { font-weight: 500; color: #34495e; background-color: #f8f9fa; }
-        .prev-col { font-weight: bold; color: #c0392b; background-color: #fdf2f0; } /* ไฮไลท์สีแดงอ่อนสำหรับช่องความชุก */
+        .prev-col { font-weight: bold; color: #c0392b; background-color: #fdf2f0; }
+
+        /* Credit Footer */
+        .credit-footer {
+            text-align: right;
+            padding: 15px 25px;
+            font-size: 0.95rem;
+            color: #555;
+            background-color: #eee;
+            border-top: 1px solid #ddd;
+            font-weight: 500;
+        }
 
         @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: flex-start; }
@@ -100,6 +123,7 @@
             .toggle-btn { flex: 1; }
             .main-chart-container { height: 250px; }
             .nav-btn { width: 100%; }
+            .credit-footer { text-align: center; }
         }
     </style>
 </head>
@@ -137,21 +161,25 @@
             <table id="dataTable">
                 <thead>
                     <tr>
-                        <th>อำเภอ</th>
-                        <th>ปี 2564</th>
-                        <th>ปี 2565</th>
-                        <th>ปี 2566</th>
-                        <th>ปี 2567</th>
-                        <th>ปี 2568</th>
-                        <th class="total-col">รวม 5 ปี</th>
-                        <th class="avg-col">เฉลี่ย/ปี</th>
-                        <th class="pop-col">ประชากร<br>(คน)</th>
-                        <th class="prev-col">ความชุกปี 68<br>(ต่อแสนประชากร)</th>
+                        <th class="sortable" onclick="handleSort('district')">อำเภอ <span class="sort-icon" id="icon-district"></span></th>
+                        <th class="sortable" onclick="handleSort('year0')">ปี 2564 <span class="sort-icon" id="icon-year0"></span></th>
+                        <th class="sortable" onclick="handleSort('year1')">ปี 2565 <span class="sort-icon" id="icon-year1"></span></th>
+                        <th class="sortable" onclick="handleSort('year2')">ปี 2566 <span class="sort-icon" id="icon-year2"></span></th>
+                        <th class="sortable" onclick="handleSort('year3')">ปี 2567 <span class="sort-icon" id="icon-year3"></span></th>
+                        <th class="sortable" onclick="handleSort('year4')">ปี 2568 <span class="sort-icon" id="icon-year4"></span></th>
+                        <th class="sortable total-col" onclick="handleSort('total')">รวม 5 ปี <span class="sort-icon" id="icon-total"></span></th>
+                        <th class="sortable avg-col" onclick="handleSort('avg')">เฉลี่ย/ปี <span class="sort-icon" id="icon-avg"></span></th>
+                        <th class="sortable pop-col" onclick="handleSort('pop')">ประชากร (คน) <span class="sort-icon" id="icon-pop"></span></th>
+                        <th class="sortable prev-col" onclick="handleSort('prev')">ความชุกปี 68 <br>(ต่อแสนประชากร) <span class="sort-icon" id="icon-prev">🔽</span></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
+    </div>
+
+    <div class="credit-footer">
+        📝 สรุปข้อมูลโดยโรงพยาบาลจิตเวชเลยราชนครินทร์ 23 มีนาคม 2569
     </div>
 </div>
 
@@ -164,7 +192,6 @@
         document.getElementById(viewId === 'view1' ? 'navView1' : 'navView2').classList.add('active');
     }
 
-    // [ข้อมูลชุดที่ 1 ละไว้เพื่อให้โค้ดสั้นลง แต่เวลาใช้งานจริงให้คง data ชุด diseaseData ไว้เหมือนเดิมครับ]
     const diseaseData = {
         "เลย": [
             { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' },
@@ -229,17 +256,10 @@
         });
     });
 
-    // ==========================================
-    // ฐานข้อมูลประชากรรายอำเภอ อ้างอิงปีล่าสุด (กรมการปกครอง)
-    // ==========================================
     const districtPopulation = {
-        // จังหวัดเลย
         "เมืองเลย": 123560, "นาด้วง": 26432, "เชียงคาน": 60828, "ปากชม": 42276, "ด่านซ้าย": 51693, "นาแห้ว": 11689, "ภูเรือ": 22587, "ท่าลี่": 27932, "วังสะพุง": 111116, "ภูกระดึง": 34526, "ภูหลวง": 25046, "ผาขาว": 39788, "เอราวัณ": 36622, "หนองหิน": 22631,
-        // จังหวัดอุดรธานี
         "เมืองอุดรธานี": 402800, "กุดจับ": 65100, "หนองวัวซอ": 63200, "กุมภวาปี": 124500, "โนนสะอาด": 48300, "หนองหาน": 116800, "ทุ่งฝน": 32100, "ไชยวาน": 38400, "ศรีธาตุ": 48200, "วังสามหมอ": 61300, "บ้านดุง": 124600, "บ้านผือ": 106100, "น้ำโสม": 59200, "เพ็ญ": 112300, "สร้างคอม": 28400, "หนองแสง": 26500, "นายูง": 28100, "พิบูลย์รักษ์": 24200, "กู่แก้ว": 22300, "ประจักษ์ศิลปาคม": 24800,
-        // จังหวัดหนองบัวลำภู
         "เมืองหนองบัวลำภู": 132400, "นากลาง": 90100, "โนนสัง": 64200, "ศรีบุญเรือง": 108300, "สุวรรณคูหา": 67400, "นาวัง": 36800,
-        // จังหวัดหนองคาย
         "เมืองหนองคาย": 145200, "ท่าบ่อ": 82100, "โพนพิสัย": 95300, "ศรีเชียงใหม่": 30200, "สังคม": 23400, "สระใคร": 25100, "เฝ้าไร่": 50200, "รัตนวาปี": 36100, "โพธิ์ตาก": 15200
     };
 
@@ -308,8 +328,10 @@
     let currentProvince = provinces[0];
     let currentType = 'OPD';
     let mainChartInstance = null;
-    const chartColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#34495e', '#d35400', '#c0392b', '#7f8c8d', '#8e44ad', '#27ae60'];
+    let currentSortCol = 'prev'; // Default sort ค่าความชุก
+    let sortAsc = false; // Default เรียงจากมากไปน้อย
 
+    // สร้างปุ่มเลือกจังหวัด
     const tabContainer = document.getElementById('provinceTabs');
     provinces.forEach(prov => {
         const btn = document.createElement('button');
@@ -331,13 +353,66 @@
         updateDistrictView();
     }
 
+    function handleSort(col) {
+        if (currentSortCol === col) {
+            sortAsc = !sortAsc; // สลับการเรียงลำดับ
+        } else {
+            currentSortCol = col;
+            sortAsc = false; // ค่าเริ่มต้นเวลาคลิกคอลัมน์ใหม่ ให้เรียงจากมากไปน้อยก่อน (เหมาะกับสถิติโรค)
+            if(col === 'district') sortAsc = true; // ยกเว้นชื่ออำเภอ ให้เรียง ก-ฮ ก่อน
+        }
+        updateDistrictView();
+    }
+
+    function updateSortIcons() {
+        document.querySelectorAll('.sort-icon').forEach(icon => icon.innerText = '');
+        if (currentSortCol) {
+            const iconEl = document.getElementById(`icon-${currentSortCol}`);
+            if (iconEl) {
+                iconEl.innerText = sortAsc ? '🔼' : '🔽';
+            }
+        }
+    }
+
     function updateDistrictView() {
         const provData = parsedData.filter(d => d.province === currentProvince);
         
+        // เตรียมข้อมูลสำหรับการแสดงผลและการจัดเรียง
+        let renderData = provData.map(d => {
+            const dataArr = currentType === 'OPD' ? d.opd : d.ipd;
+            const total = currentType === 'OPD' ? d.opdTot : d.ipdTot;
+            const avg = currentType === 'OPD' ? d.opdAvg : d.ipdAvg;
+            const pop = districtPopulation[d.district] || 0;
+            const prev = pop > 0 ? (dataArr[4] / pop) * 100000 : 0;
+            return { district: d.district, dataArr, total, avg, pop, prev };
+        });
+
+        // ทำการ Sort ข้อมูล
+        if (currentSortCol) {
+            renderData.sort((a, b) => {
+                let valA, valB;
+                if (currentSortCol === 'district') { valA = a.district; valB = b.district; }
+                else if (currentSortCol.startsWith('year')) {
+                    const idx = parseInt(currentSortCol.replace('year', ''));
+                    valA = a.dataArr[idx]; valB = b.dataArr[idx];
+                }
+                else { valA = a[currentSortCol]; valB = b[currentSortCol]; }
+
+                if (typeof valA === 'string') {
+                    return sortAsc ? valA.localeCompare(valB, 'th') : valB.localeCompare(valA, 'th');
+                }
+                return sortAsc ? valA - valB : valB - valA;
+            });
+        }
+
+        updateSortIcons();
+
+        // อัปเดตกราฟ (ให้กราฟเรียงลำดับตามตารางด้วย)
         const ctx = document.getElementById('mainChart').getContext('2d');
-        const datasets = provData.map((d, i) => ({
+        const chartColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#34495e', '#d35400', '#c0392b', '#7f8c8d', '#8e44ad', '#27ae60'];
+        const datasets = renderData.map((d, i) => ({
             label: d.district,
-            data: currentType === 'OPD' ? d.opd : d.ipd,
+            data: d.dataArr,
             borderColor: chartColors[i % chartColors.length],
             borderWidth: 2, tension: 0.3
         }));
@@ -349,35 +424,32 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } }, title: { display: true, text: `แนวโน้มผู้ป่วย ${currentType} จังหวัด${currentProvince} รายอำเภอ`, font: { size: 16 } } } }
         });
 
+        // อัปเดตตาราง
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        provData.forEach(d => {
-            const dataArr = currentType === 'OPD' ? d.opd : d.ipd;
-            const pop = districtPopulation[d.district] || 0;
-            
-            // คำนวณอัตราความชุกต่อแสนประชากร จากข้อมูลปีล่าสุด (2568 ซึ่งเป็น index ที่ 4 ของ array)
-            const prevalenceStr = pop > 0 ? ((dataArr[4] / pop) * 100000).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) : 'N/A';
-            const popStr = pop > 0 ? pop.toLocaleString() : 'ไม่พบข้อมูล';
+        renderData.forEach(d => {
+            const popStr = d.pop > 0 ? d.pop.toLocaleString() : 'ไม่พบข้อมูล';
+            const prevStr = d.pop > 0 ? d.prev.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) : 'N/A';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${d.district}</td>
-                <td>${dataArr[0].toLocaleString()}</td>
-                <td>${dataArr[1].toLocaleString()}</td>
-                <td>${dataArr[2].toLocaleString()}</td>
-                <td>${dataArr[3].toLocaleString()}</td>
-                <td>${dataArr[4].toLocaleString()}</td>
-                <td class="total-col">${(currentType === 'OPD' ? d.opdTot : d.ipdTot).toLocaleString()}</td>
-                <td class="avg-col">${(currentType === 'OPD' ? d.opdAvg : d.ipdAvg).toLocaleString()}</td>
+                <td>${d.dataArr[0].toLocaleString()}</td>
+                <td>${d.dataArr[1].toLocaleString()}</td>
+                <td>${d.dataArr[2].toLocaleString()}</td>
+                <td>${d.dataArr[3].toLocaleString()}</td>
+                <td>${d.dataArr[4].toLocaleString()}</td>
+                <td class="total-col">${d.total.toLocaleString()}</td>
+                <td class="avg-col">${d.avg.toLocaleString()}</td>
                 <td class="pop-col">${popStr}</td>
-                <td class="prev-col">${prevalenceStr}</td>
+                <td class="prev-col">${prevStr}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
+    // โหลดครั้งแรก
     updateDistrictView();
 </script>
-    สรุปข้อมูลโดย โรงพยาบาลจิตเวชเลยราชนครินทร์ 23 มีนาคม 2568
 </body>
 </html>
