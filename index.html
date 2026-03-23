@@ -3,39 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trend 5 อันดับกลุ่มโรคจิตเวช (2566-2568)</title>
+    <title>Dashboard เปรียบเทียบ 5 อันดับกลุ่มโรคผู้ป่วยนอก เขตสุขภาพที่ 8 (2566-2568)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f4f7f6; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        select { padding: 10px; font-size: 16px; margin-bottom: 20px; width: 100%; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: #1a237e;
+        }
+        .header p {
+            margin: 5px 0 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        /* CSS Grid สำหรับ Responsive Layout */
+        .chart-grid {
+            display: grid;
+            /* ปรับให้รองรับจอทุกขนาด ถ้าจอกว้างกว่า 320px จะพยายามยัดลงไปแนวนอนให้ได้มากที่สุด */
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* การ์ดสำหรับแต่ละกราฟ */
+        .chart-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-card h3 {
+            text-align: center;
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* ควบคุมขนาดของกราฟไม่ให้ล้นจอ */
+        .chart-container {
+            position: relative;
+            height: 280px; 
+            width: 100%;
+        }
+
+        /* ปรับขนาดฟอนต์เพิ่มเติมสำหรับจอมือถือเล็กๆ */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .header h1 { font-size: 1.3rem; }
+            .chart-container { height: 250px; } 
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="text-align: center;">แนวโน้ม 5 อันดับกลุ่มโรค 3 ปี (2566-2568)</h2>
-    <select id="provinceSelect" onchange="updateChart()">
-        <option value="เลย">เลย</option>
-        <option value="บึงกาฬ">บึงกาฬ</option>
-        <option value="หนองบัวลำภู">หนองบัวลำภู</option>
-        <option value="อุดรธานี">อุดรธานี</option>
-        <option value="หนองคาย">หนองคาย</option>
-        <option value="สกลนคร">สกลนคร</option>
-        <option value="นครพนม">นครพนม</option>
-    </select>
-    
-    <canvas id="trendChart"></canvas>
+<div class="header">
+    <h1>แนวโน้ม 5 อันดับกลุ่มโรคจิตเวช 3 ปี (2566-2568)</h1>
+    <p>เปรียบเทียบจำแนกราย 7 จังหวัด (ข้อมูลจำนวนราย : ผู้ป่วยนอก)</p>
 </div>
 
+<div class="chart-grid" id="chartGrid"></div>
+
 <script>
+    // ชุดข้อมูลหลัก กำหนดสีให้ตรงกันทุกกราฟเพื่อให้ผู้บริหารเทียบข้อมูลข้ามจังหวัดได้ง่าย
     const dataSet = {
+        "เลย": [
+            { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' },
+            { label: 'F20-F29 จิตเภท', data: [6918, 8100, 7825], borderColor: '#3498db' },
+            { label: 'F40-F48 เครียด/ประสาท', data: [7554, 7552, 7518], borderColor: '#2ecc71' },
+            { label: 'F30-F39 อารมณ์', data: [4918, 5079, 5530], borderColor: '#f1c40f' },
+            { label: 'F50-F59 พฤติกรรมฯ', data: [2961, 2736, 2796], borderColor: '#9b59b6' }
+        ],
         "บึงกาฬ": [
             { label: 'F10-F19 สารเสพติด', data: [4523, 4236, 5652], borderColor: '#e74c3c' },
             { label: 'F20-F29 จิตเภท', data: [2964, 3267, 3743], borderColor: '#3498db' },
             { label: 'F30-F39 อารมณ์', data: [1428, 1439, 1605], borderColor: '#f1c40f' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [1235, 1293, 1404], borderColor: '#2ecc71' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [1212, 1454, 1566], borderColor: '#9b59b6' }
+            { label: 'F50-F59 พฤติกรรมฯ', data: [1212, 1454, 1566], borderColor: '#9b59b6' },
+            { label: 'F40-F48 เครียด/ประสาท', data: [1235, 1293, 1404], borderColor: '#2ecc71' }
         ],
         "หนองบัวลำภู": [
             { label: 'F20-F29 จิตเภท', data: [3144, 3290, 3704], borderColor: '#3498db' },
@@ -50,13 +111,6 @@
             { label: 'F40-F48 เครียด/ประสาท', data: [9181, 10385, 9580], borderColor: '#2ecc71' },
             { label: 'F30-F39 อารมณ์', data: [5630, 5752, 5461], borderColor: '#f1c40f' },
             { label: 'F50-F59 พฤติกรรมฯ', data: [5447, 5289, 4979], borderColor: '#9b59b6' }
-        ],
-        "เลย": [
-            { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' },
-            { label: 'F20-F29 จิตเภท', data: [6918, 8100, 7825], borderColor: '#3498db' },
-            { label: 'F40-F48 เครียด/ประสาท', data: [7554, 7552, 7518], borderColor: '#2ecc71' },
-            { label: 'F30-F39 อารมณ์', data: [4918, 5079, 5530], borderColor: '#f1c40f' },
-            { label: 'F50-F59 พฤติกรรมฯ', data: [2961, 2736, 2796], borderColor: '#9b59b6' }
         ],
         "หนองคาย": [
             { label: 'F10-F19 สารเสพติด', data: [3208, 4352, 5015], borderColor: '#e74c3c' },
@@ -81,26 +135,71 @@
         ]
     };
 
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    let myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['ปี 2566', 'ปี 2567', 'ปี 2568'],
-            datasets: dataSet['เลย']
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } },
-            elements: { line: { tension: 0.3, borderWidth: 3 }, point: { radius: 5 } }
-        }
+    const grid = document.getElementById('chartGrid');
+
+    // วนลูปเพื่อสร้างการ์ดและกราฟอัตโนมัติทีละจังหวัด
+    Object.keys(dataSet).forEach(province => {
+        // สร้าง Card
+        const card = document.createElement('div');
+        card.className = 'chart-card';
+        
+        // สร้าง Header ของ Card
+        const title = document.createElement('h3');
+        title.innerText = `จังหวัด${province}`;
+        card.appendChild(title);
+
+        // สร้าง Container ให้ Canvas เพื่อคุมขนาด Responsive
+        const canvasContainer = document.createElement('div');
+        canvasContainer.className = 'chart-container';
+        
+        // สร้าง Canvas
+        const canvas = document.createElement('canvas');
+        canvasContainer.appendChild(canvas);
+        card.appendChild(canvasContainer);
+        
+        // เอาการ์ดไปใส่ใน Grid หลัก
+        grid.appendChild(card);
+
+        // สร้างกราฟด้วย Chart.js
+        new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['ปี 2566', 'ปี 2567', 'ปี 2568'],
+                datasets: dataSet[province]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // สำคัญมากสำหรับมือถือ ปล่อยให้ความสูงยืดหดตาม Container
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 10,
+                            padding: 10,
+                            font: { family: 'Sarabun', size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        titleFont: { family: 'Sarabun' },
+                        bodyFont: { family: 'Sarabun' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { family: 'Sarabun', size: 10 } }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Sarabun', size: 12 } }
+                    }
+                },
+                elements: {
+                    line: { tension: 0.3, borderWidth: 2.5 },
+                    point: { radius: 3, hitRadius: 10, hoverRadius: 6 }
+                }
+            }
+        });
     });
-
-    function updateChart() {
-        const selected = document.getElementById('provinceSelect').value;
-        myChart.data.datasets = dataSet[selected];
-        myChart.update();
-    }
 </script>
-
 </body>
 </html>
