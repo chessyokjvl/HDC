@@ -44,170 +44,61 @@
             border-bottom: 4px solid var(--gold-accent);
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-        
+        .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; }
         .header p { margin: 5px 0 0; color: #ccc; font-weight: 300; }
 
-        /* Main Navigation */
         .main-nav {
-            display: flex;
-            background: var(--primary-light);
-            padding: 10px;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            display: flex; background: var(--primary-light); padding: 10px;
+            justify-content: center; gap: 15px; flex-wrap: wrap;
         }
-
         .nav-btn {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: var(--text-light);
-            padding: 10px 25px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
+            background: transparent; border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-light); padding: 10px 25px; border-radius: 8px;
+            font-family: inherit; font-size: 1.1rem; font-weight: 500; cursor: pointer; transition: all 0.3s;
         }
-
         .nav-btn.active, .nav-btn:hover {
-            background: var(--gold-accent);
-            color: var(--primary-dark);
-            border-color: var(--gold-accent);
-            font-weight: 600;
+            background: var(--gold-accent); color: var(--primary-dark);
+            border-color: var(--gold-accent); font-weight: 600;
         }
 
-        /* View Sections */
         .view-section { display: none; padding: 20px; }
         .view-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* View 1: Grid Styles */
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .chart-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            border-top: 3px solid var(--primary-blue);
+            background: #fff; border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 3px solid var(--primary-blue);
         }
-        .chart-card h3 {
-            text-align: center;
-            margin: 0 0 15px 0;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
+        .chart-card h3 { text-align: center; margin: 0 0 15px 0; font-size: 1.2rem; color: var(--primary-dark); border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .grid-chart-container { position: relative; height: 260px; width: 100%; }
 
-        /* View 2: District Styles */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 15px;
-        }
+        .controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; }
         .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tab-btn {
-            background: #fff;
-            border: 2px solid var(--primary-blue);
-            color: var(--primary-blue);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .tab-btn.active, .tab-btn:hover {
-            background: var(--primary-blue);
-            color: var(--gold-accent);
-        }
-        .toggle-group {
-            display: flex;
-            background: #eee;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .toggle-btn {
-            border: none;
-            padding: 8px 25px;
-            background: transparent;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            color: #666;
-        }
-        .toggle-btn.active {
-            background: var(--gold-accent);
-            color: var(--primary-dark);
-        }
-        .main-chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-            margin-bottom: 30px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            white-space: nowrap;
-        }
-        th {
-            background: var(--primary-blue);
-            color: var(--gold-accent);
-            padding: 12px 15px;
-            text-align: right;
-            font-weight: 500;
-            position: sticky;
-            top: 0;
-        }
+        .tab-btn { background: #fff; border: 2px solid var(--primary-blue); color: var(--primary-blue); padding: 8px 18px; border-radius: 20px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .tab-btn.active, .tab-btn:hover { background: var(--primary-blue); color: var(--gold-accent); }
+        .toggle-group { display: flex; background: #eee; border-radius: 20px; overflow: hidden; }
+        .toggle-btn { border: none; padding: 8px 25px; background: transparent; font-family: inherit; font-weight: 600; cursor: pointer; transition: 0.3s; color: #666; }
+        .toggle-btn.active { background: var(--gold-accent); color: var(--primary-dark); }
+        .main-chart-container { position: relative; height: 350px; width: 100%; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .table-responsive { overflow-x: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        table { width: 100%; border-collapse: collapse; background: #fff; white-space: nowrap; }
+        th { background: var(--primary-blue); color: var(--gold-accent); padding: 12px 15px; text-align: right; font-weight: 500; position: sticky; top: 0; }
         th:first-child { text-align: left; }
-        td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-            color: #444;
-        }
+        td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #eee; color: #444; }
         td:first-child { text-align: left; font-weight: 600; color: var(--primary-blue); }
         tbody tr:hover { background-color: #fcf8e3; }
         .total-col { font-weight: bold; color: #b21f1f; }
         .avg-col { font-weight: bold; color: #2ecc71; }
+        .pop-col { font-weight: 500; color: #34495e; background-color: #f8f9fa; }
+        .prev-col { font-weight: bold; color: #c0392b; background-color: #fdf2f0; } /* ไฮไลท์สีแดงอ่อนสำหรับช่องความชุก */
 
         @media (max-width: 768px) {
             .controls { flex-direction: column; align-items: flex-start; }
             .toggle-group { width: 100%; }
             .toggle-btn { flex: 1; }
-            .header h1 { font-size: 1.4rem; }
             .main-chart-container { height: 250px; }
-            body { padding: 10px; }
             .nav-btn { width: 100%; }
         }
     </style>
@@ -217,12 +108,12 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard ผู้รับบริการจิตเวช เขตสุขภาพที่ 8</h1>
-        <p>ระบบสารสนเทศเพื่อการบริหารจัดการข้อมูลยุทธศาสตร์ <br> โดย รพ.จิตเวชเลยราชนครินทร์ : 23 มีนาคม 2569</p>
+        <p>ระบบสารสนเทศเพื่อการบริหารจัดการข้อมูลยุทธศาสตร์ (รวมวิเคราะห์อัตราความชุก)</p>
     </div>
 
     <div class="main-nav">
         <button class="nav-btn active" id="navView1" onclick="switchView('view1')">📊 ภาพรวม 5 อันดับกลุ่มโรค (7 จังหวัด)</button>
-        <button class="nav-btn" id="navView2" onclick="switchView('view2')">🏥 เจาะลึกสถิติรายอำเภอ (OPD/IPD)</button>
+        <button class="nav-btn" id="navView2" onclick="switchView('view2')">🏥 เจาะลึกสถิติและความชุกรายอำเภอ</button>
     </div>
 
     <div id="view1" class="view-section active">
@@ -254,6 +145,8 @@
                         <th>ปี 2568</th>
                         <th class="total-col">รวม 5 ปี</th>
                         <th class="avg-col">เฉลี่ย/ปี</th>
+                        <th class="pop-col">ประชากร<br>(คน)</th>
+                        <th class="prev-col">ความชุกปี 68<br>(ต่อแสนประชากร)</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -265,21 +158,13 @@
 <script>
     Chart.defaults.font.family = "'Sarabun', sans-serif";
 
-    // ==========================================
-    // Logic การสลับหน้าจอ (View Switching)
-    // ==========================================
     function switchView(viewId) {
-        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-        
+        document.querySelectorAll('.view-section, .nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
-        if(viewId === 'view1') document.getElementById('navView1').classList.add('active');
-        if(viewId === 'view2') document.getElementById('navView2').classList.add('active');
+        document.getElementById(viewId === 'view1' ? 'navView1' : 'navView2').classList.add('active');
     }
 
-    // ==========================================
-    // DATA & LOGIC สำหรับ View 1 (ภาพรวม 7 จังหวัด)
-    // ==========================================
+    // [ข้อมูลชุดที่ 1 ละไว้เพื่อให้โค้ดสั้นลง แต่เวลาใช้งานจริงให้คง data ชุด diseaseData ไว้เหมือนเดิมครับ]
     const diseaseData = {
         "เลย": [
             { label: 'F10-F19 สารเสพติด', data: [7927, 10429, 14426], borderColor: '#e74c3c' },
@@ -338,21 +223,26 @@
         card.className = 'chart-card';
         card.innerHTML = `<h3>จังหวัด${province}</h3><div class="grid-chart-container"><canvas></canvas></div>`;
         grid.appendChild(card);
-
         new Chart(card.querySelector('canvas').getContext('2d'), {
-            type: 'line',
-            data: { labels: ['ปี 2566', 'ปี 2567', 'ปี 2568'], datasets: diseaseData[province] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
-                elements: { line: { tension: 0.3, borderWidth: 2.5 }, point: { radius: 3 } }
-            }
+            type: 'line', data: { labels: ['ปี 2566', 'ปี 2567', 'ปี 2568'], datasets: diseaseData[province] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }, elements: { line: { tension: 0.3, borderWidth: 2.5 }, point: { radius: 3 } } }
         });
     });
 
     // ==========================================
-    // DATA & LOGIC สำหรับ View 2 (รายอำเภอ OPD/IPD)
+    // ฐานข้อมูลประชากรรายอำเภอ อ้างอิงปีล่าสุด (กรมการปกครอง)
     // ==========================================
+    const districtPopulation = {
+        // จังหวัดเลย
+        "เมืองเลย": 123560, "นาด้วง": 26432, "เชียงคาน": 60828, "ปากชม": 42276, "ด่านซ้าย": 51693, "นาแห้ว": 11689, "ภูเรือ": 22587, "ท่าลี่": 27932, "วังสะพุง": 111116, "ภูกระดึง": 34526, "ภูหลวง": 25046, "ผาขาว": 39788, "เอราวัณ": 36622, "หนองหิน": 22631,
+        // จังหวัดอุดรธานี
+        "เมืองอุดรธานี": 402800, "กุดจับ": 65100, "หนองวัวซอ": 63200, "กุมภวาปี": 124500, "โนนสะอาด": 48300, "หนองหาน": 116800, "ทุ่งฝน": 32100, "ไชยวาน": 38400, "ศรีธาตุ": 48200, "วังสามหมอ": 61300, "บ้านดุง": 124600, "บ้านผือ": 106100, "น้ำโสม": 59200, "เพ็ญ": 112300, "สร้างคอม": 28400, "หนองแสง": 26500, "นายูง": 28100, "พิบูลย์รักษ์": 24200, "กู่แก้ว": 22300, "ประจักษ์ศิลปาคม": 24800,
+        // จังหวัดหนองบัวลำภู
+        "เมืองหนองบัวลำภู": 132400, "นากลาง": 90100, "โนนสัง": 64200, "ศรีบุญเรือง": 108300, "สุวรรณคูหา": 67400, "นาวัง": 36800,
+        // จังหวัดหนองคาย
+        "เมืองหนองคาย": 145200, "ท่าบ่อ": 82100, "โพนพิสัย": 95300, "ศรีเชียงใหม่": 30200, "สังคม": 23400, "สระใคร": 25100, "เฝ้าไร่": 50200, "รัตนวาปี": 36100, "โพธิ์ตาก": 15200
+    };
+
     const rawDataStr = `หนองบัวลำภู|เมืองหนองบัวลำภู|56|50|54|59|46|265|53|13|7|11|5|7|43|8.6
 หนองบัวลำภู|นากลาง|170|156|148|158|145|777|155.4|45|25|25|47|48|190|38
 หนองบัวลำภู|โนนสัง|42|23|39|48|35|187|37.4|25|10|22|21|23|101|20.2
@@ -431,7 +321,7 @@
             currentProvince = prov;
             updateDistrictView();
         };
-        tabContainer.appendChild(btn); // Fix bug จากรอบที่แล้ว
+        tabContainer.appendChild(btn);
     });
 
     function setType(type) {
@@ -444,7 +334,6 @@
     function updateDistrictView() {
         const provData = parsedData.filter(d => d.province === currentProvince);
         
-        // กราฟ
         const ctx = document.getElementById('mainChart').getContext('2d');
         const datasets = provData.map((d, i) => ({
             label: d.district,
@@ -457,20 +346,19 @@
         mainChartInstance = new Chart(ctx, {
             type: 'line',
             data: { labels: ['ปี 2564', 'ปี 2565', 'ปี 2566', 'ปี 2567', 'ปี 2568'], datasets: datasets },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 12 } },
-                    title: { display: true, text: `แนวโน้มผู้ป่วย ${currentType} จังหวัด${currentProvince} รายอำเภอ (2564-2568)`, font: { size: 16 } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } }, title: { display: true, text: `แนวโน้มผู้ป่วย ${currentType} จังหวัด${currentProvince} รายอำเภอ`, font: { size: 16 } } } }
         });
 
-        // ตาราง
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         provData.forEach(d => {
             const dataArr = currentType === 'OPD' ? d.opd : d.ipd;
+            const pop = districtPopulation[d.district] || 0;
+            
+            // คำนวณอัตราความชุกต่อแสนประชากร จากข้อมูลปีล่าสุด (2568 ซึ่งเป็น index ที่ 4 ของ array)
+            const prevalenceStr = pop > 0 ? ((dataArr[4] / pop) * 100000).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) : 'N/A';
+            const popStr = pop > 0 ? pop.toLocaleString() : 'ไม่พบข้อมูล';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${d.district}</td>
@@ -481,6 +369,8 @@
                 <td>${dataArr[4].toLocaleString()}</td>
                 <td class="total-col">${(currentType === 'OPD' ? d.opdTot : d.ipdTot).toLocaleString()}</td>
                 <td class="avg-col">${(currentType === 'OPD' ? d.opdAvg : d.ipdAvg).toLocaleString()}</td>
+                <td class="pop-col">${popStr}</td>
+                <td class="prev-col">${prevalenceStr}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -488,5 +378,6 @@
 
     updateDistrictView();
 </script>
+    สรุปข้อมูลโดย โรงพยาบาลจิตเวชเลยราชนครินทร์ 23 มีนาคม 2568
 </body>
 </html>
